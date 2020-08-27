@@ -1,0 +1,42 @@
+version: '3.3'
+services:
+  node:
+    container_name: nodeapp
+    build:
+      context: .
+      dockerfile: node.dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - nodeapp-network
+    depends_on:
+      - mysql
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    links:
+      - mysql
+    external_links:
+      - db_server:mysql
+    ports:
+      - "8183:80"
+    networks:
+      - nodeapp-network
+    environment:
+      PMA_HOST: mysql
+      PMA_HOSTS: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+  mysql:
+    image: mysql/mysql-server:5.7
+    container_name: mysql
+    networks:
+      - nodeapp-network
+    environment:
+      MYSQL_DATABASE: nodeapp
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: pass
+      MYSQL_ROOT_PASSWORD: my@secret-root
+networks:
+  nodeapp-network:
+    driver: bridge
